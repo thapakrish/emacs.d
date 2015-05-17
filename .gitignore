@@ -3,6 +3,7 @@
 .DS_Store
 savefile/
 #*#
+#*.*#
 *.eld
 ido.last
 auto-save-hist
@@ -18,3 +19,4 @@ root-help.el
 .mc-lists.el
 elpa
 ac-comphist.dat
+session.*
