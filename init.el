@@ -37,7 +37,7 @@
 ;;(require 'root-help)   ;; download it from CERN/SLAC + place it under research directory
 (require 'phys-init)
 
-
+(require 'pkg-latex)
 
 ;; move all the auto-generated files about custom-set variables
 ;; and ede-projects to custom/.custom.el
