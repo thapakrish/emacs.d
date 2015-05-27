@@ -66,4 +66,27 @@
 ;; org-todo-state-map
 '(org-agenda-ndays 7)
 
+;;show repetitive agenda entries only once
+(setq org-agenda-repeating-timestamp-show-all nil)
+
+
+;; org notes file
+(setq org-default-notes-file (concat org-directory "/notes.org"))
+
+;; set capture templates
+(setq org-capture-templates
+      '(("r" "Research" entry (file+headline "~/org/class.org" "Tasks")
+	 "* TODO %?\n  %i\n  %a")      
+	("c" "Class" entry (file+headline "~/org/class.org" "Tasks")
+	 "* TODO %?\n  %i\n  %a")
+	("e" "Emacs" entry (file+headline "~/org/emacs.org" "Tasks")
+	 "* TODO %?\n  %i\n  %a")
+	("l" "Linux" entry (file+headline "~/org/linux.org" "Tasks")
+	 "* TODO %?\n  %i\n  %a")))
+
+;; where to refile
+(setq org-refile-targets (quote ((nil :maxlevel . 9)
+				 (org-agenda-files :maxlevel . 9))))
+
+
 (provide 'pkg-org)
