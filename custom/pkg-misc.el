@@ -26,6 +26,7 @@
     "C-x r-b to jump to bookmarks"    
     "C-h k to define key"
     "C-x C-t to swap lines"
+    "C-cc to org capture"
     "C-h r to see emacs manual page"))
 
 
