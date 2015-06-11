@@ -37,7 +37,7 @@
 ;;create a project for a program
 (ede-cpp-root-project "PLT"
                 :name "PLT Offile Project"
-                :file "~/github/PLTOffline/rootSetup.sh"
+                :file "~/github/PLTOffline/setup_cmsvol1.sh"
                 :include-path '("/"
                                 "/Common"
                                 "/Interfaces"
