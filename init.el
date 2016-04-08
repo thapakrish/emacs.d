@@ -24,7 +24,8 @@
 (add-to-list 'load-path research-dir)
 
 
-
+;;(load-theme 'deeper-blue t)
+(load-theme 'tango-dark t)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Packages Require ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'pkg-manager)
 (require 'pkg-init)

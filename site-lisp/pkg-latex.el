@@ -8,7 +8,7 @@
 (setq reftex-plug-into-AUCTeX t)
 
 (setq TeX-PDF-mode t)
-(latex-preview-pane-enable)
+;;(latex-preview-pane-enable)
 
 
 (provide 'pkg-latex)

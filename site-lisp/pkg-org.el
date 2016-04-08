@@ -53,6 +53,8 @@
 
 ;; org agenda files
 (setq org-agenda-files (list "~/org/research.org"
+			     "~/org/cpp.org"
+			     "~/org/current.org"			     
 			     "~/org/tdEmacs.org"
 			     "~/org/tdLinux.org"
 			     "~/org/readings.org"
@@ -74,19 +76,62 @@
 (setq org-default-notes-file (concat org-directory "/notes.org"))
 
 ;; set capture templates
+
+
+;;(setq org-directory "~/git/org")
+;;(setq org-default-notes-file "~/git/org/refile.org")
+
+;; I use C-c c to start capture mode
+(global-set-key (kbd "C-c c") 'org-capture)
+
+
+;; source : http://doc.norang.ca/org-mode.html#Capture
+;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
 (setq org-capture-templates
-      '(("r" "Research" entry (file+headline "~/org/class.org" "Tasks")
-	 "* TODO %?\n  %i\n  %a")      
-	("c" "Class" entry (file+headline "~/org/class.org" "Tasks")
-	 "* TODO %?\n  %i\n  %a")
-	("e" "Emacs" entry (file+headline "~/org/emacs.org" "Tasks")
-	 "* TODO %?\n  %i\n  %a")
-	("l" "Linux" entry (file+headline "~/org/linux.org" "Tasks")
-	 "* TODO %?\n  %i\n  %a")))
+      (quote (("t" "todo" entry (file "~/org/refile.org")
+	       "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+	      ("n" "note" entry (file "~/org/refile.org")
+	       "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+	      ("j" "Journal" entry (file+datetree "~/org/current.org")
+	       "* %?\n%U\n" :clock-in t :clock-resume t)
+	      ("w" "org-protocol" entry (file "~/org/refile.org")
+	       "* TODO Review %c\n%U\n" :immediate-finish t)
+	      ("m" "Meeting" entry (file "~/org/refile.org")
+	       "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
+	      ("h" "Habit" entry (file "~/org/refile.org")
+	       "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"%<<%Y-%m-%d %a .+1d/3d>>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
+
+
+
+
+;; Remove empty LOGBOOK drawers on clock out
+(defun bh/remove-empty-drawer-on-clock-out ()
+  (interactive)
+  (save-excursion
+    (beginning-of-line 0)
+    (org-remove-empty-drawer-at "LOGBOOK" (point))))
+
+(add-hook 'org-clock-out-hook 'bh/remove-empty-drawer-on-clock-out 'append)
+
+
+
+;;(setq org-capture-templates
+;;      '(("r" "Research" entry (file+headline "~/org/refile.org" "Tasks")
+;;	 "* TODO %?\n  %i\n  %a")      
+;;	("c" "Class" entry (file+headline "~/org/refile.org" "Tasks")
+;;	 "* TODO %?\n  %i\n  %a")
+;;	("e" "Emacs" entry (file+headline "~/org/refile.org" "Tasks")
+;;	 "* TODO %?\n  %i\n  %a")
+;;	("k" "Current" entry (file+headline "~/org/refile.org" "Tasks")
+;;	 "* TODO %?\n  %i\n  %a")	
+;;	("l" "Linux" entry (file+headline "~/org/refile.org" "Tasks")
+;;	 "* TODO %?\n  %i\n  %a")))
 
 ;; where to refile
 (setq org-refile-targets (quote ((nil :maxlevel . 9)
 				 (org-agenda-files :maxlevel . 9))))
 
+;; clock
+(setq org-clock-into-drawer t)
 
 (provide 'pkg-org)
