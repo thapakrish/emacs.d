@@ -83,5 +83,15 @@
 
 (put 'dired-find-alternate-file 'disabled nil)
 
+(require 'whitespace)
+(setq whitespace-style '(face empty tabs lines-tail trailing))
+(global-whitespace-mode t)
+
+
+;; larger frame
+(add-to-list 'default-frame-alist '(left . 0))
+(add-to-list 'default-frame-alist '(top . 0))
+(add-to-list 'default-frame-alist '(height . 55))
+(add-to-list 'default-frame-alist '(width . 80))
 
 (provide 'pkg-misc)
