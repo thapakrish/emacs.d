@@ -95,3 +95,92 @@ Indent 4 spaces.
    (perl . t)
    ))
 #+END_SRC
+
+** Capture, Agenda
+#+BEGIN_SRC emacs-lisp
+;; Some keys
+(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-cc" 'org-capture)
+(global-set-key "\C-ca" 'org-agenda)
+(global-set-key "\C-cb" 'org-iswitchb)
+(setq org-log-done 'time)
+(global-font-lock-mode 1)
+
+;; set org keywords
+(setq org-todo-keywords
+      '((sequence  "TODO(t)" "Active(a)" "NEXT(n)"
+		  "Hold(h)"  "WAITING(w)" "Someday(s)" "Canceled(c)"
+		  "DONE(d!)")))
+
+
+(setf org-todo-keyword-faces
+      '(("NEXT" . (:foreground "yellow" :background "red" :weight bold))
+	("Active" . (:foreground "yellow" :background "red" :weight bold))
+	("TODO" . (:foreground "green" :background "black" :weight bold))
+	("Canceled" . (:foreground "cyan" :background "steelblue" :weight bold))
+	("Hold" . (:foreground "cyan" :background "blue" :weight bold))
+	("WAITING" . (:foreground "yellow" :background "magenta2" :weight bold))
+	("Someday" . (:foreground "yellow" :background "blue" :weight bold))
+	("DONE" . (:foreground "yellow" :background "red"))))
+
+
+;; org agenda files
+(setq org-agenda-files (list "~/org/work.org"
+			     "~/org/emacs.org"
+			     "~/org/links.org"
+			     "~/org/notes.org"
+			     "~/org/misc.org"
+			     "~/org/personal.org"))
+
+
+;; to include diary to agenda
+(setq org-agenda-include-diary t)
+
+;; org-todo-state-map
+'(org-agenda-ndays 7)
+
+;;show repetitive agenda entries only once
+(setq org-agenda-repeating-timestamp-show-all nil)
+
+
+;; org notes file
+(setq org-default-notes-file (concat org-directory "/notes.org"))
+
+;; set capture templates
+
+;;(setq org-directory "~/git/org")
+;;(setq org-default-notes-file "~/git/org/refile.org")
+
+;; I use C-c c to start capture mode
+(global-set-key (kbd "C-c c") 'org-capture)
+
+;; source : http://doc.norang.ca/org-mode.html#Capture
+;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
+(setq org-capture-templates
+      (quote (
+;;	      ("t" "todo" entry (file+headline "~/org/refile.org" "TODO_Items")
+;;	       "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
+	      ("t" "Todo" entry (file+headline "~/org/refile.org" "Tasks")
+	       "* TODO %?\n  %i\n  %a")
+	      ("n" "note" entry (file "~/org/notes.org")
+	       "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+	      ("j" "Journal" entry (file+datetree "~/org/notes.org")
+	       "* %?\n%U\n" :clock-in t :clock-resume t)
+;;	      ("n" "Note" entry (file+headline "~/org/current" "Notes")
+;;	       "* Note %?\n%T")
+	      ("l" "Link" entry (file+headline "~/org/links.org" "Links")
+	       "* %? %^L %^g \n%T" :prepend t)
+	      ("a" "Appointment" entry (file  "~/org/notes.org" "Appointments")
+	       "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n")
+	      ("c" "CodeBlocks" entry (file+headline "~/org/refile.org" "CodeBlocks")
+	       "* %?\n%i\n"))))
+
+
+;; where to refile
+(setq org-refile-targets (quote ((nil :maxlevel . 9)
+				 (org-agenda-files :maxlevel . 9))))
+
+;; clock
+(setq org-clock-into-drawer t)
+#+END_SRC
