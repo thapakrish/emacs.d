@@ -55,45 +55,46 @@ Indent 4 spaces.
              (set (make-local-variable 'ac-auto-start) nil)))
 #+END_SRC
 * Org Mode
-** Misc
+** Barebones
 #+BEGIN_SRC emacs-lisp
-(require 'org)
-;; highlight source blocks while edit
-(setq org-src-fontify-natively t)
+  (require 'org)
+  ;; highlight source blocks while edit
+  (setq org-src-fontify-natively t)
 
 
-;; tab
-(setq org-src-tab-acts-natively t)
+  ;; tab
+  (setq org-src-tab-acts-natively t)
 
-(setq org-src-window-setup 'current-window)
-
-
-;; spell check
-(add-hook 'org-mode-hook 'flyspell-mode)
+  (setq org-src-window-setup 'current-window)
 
 
-;; pretty bullets
-(add-hook 'org-mode-hook
-          (lambda ()
-            (org-bullets-mode t)))
+  ;; spell check
+  (add-hook 'org-mode-hook 'flyspell-mode)
 
-(setq org-ellipsis "⤵")
 
-(setenv "BROWSER" "firefox")
+  ;; pretty bullets
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (org-bullets-mode t)))
 
-;; For babel support
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '(
-   (sh . t)
-   (python . t)
-   (R . t)
-   (ruby . t)
-   (ditaa . t)
-   (octave . t)
-   (sqlite . t)
-   (perl . t)
-   ))
+  (setq org-ellipsis "⤵")
+
+  (setenv "BROWSER" "firefox")
+
+  ;; For babel support
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (sh . t)
+     (python . t)
+     (R . t)
+     (gnuplot . t)
+     (ruby . t)
+     (ditaa . t)
+     (octave . t)
+     (sqlite . t)
+     (perl . t)
+     ))
 #+END_SRC
 
 ** Capture, Agenda
@@ -185,7 +186,7 @@ Indent 4 spaces.
 (setq org-clock-into-drawer t)
 #+END_SRC
 
-** Latex
+** LateX
 #+BEGIN_SRC emacs-lisp
 ;; Latex
 ;; emacs app needs pdflatex env for mac
@@ -230,4 +231,34 @@ Indent 4 spaces.
   ;; to export org files to confluence
   (load "~/Documents/elisp/ox-confluence.el")
   (require 'ox-confluence)
+#+END_SRC
+
+* Misc
+#+BEGIN_SRC emacs-lisp
+;; which key mode
+(require 'which-key)
+(which-key-mode)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(global-undo-tree-mode)
+#+END_SRC
+
+* Shell
+#+BEGIN_SRC emacs-lisp
+;; For case insensitive tab completion
+(setq pcomplete-ignore-case t)
+
+;; Cursor map to up and down arrow
+(require 'comint)
+(define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
+(define-key comint-mode-map (kbd "<down>") 'comint-next-input)
+
+(defun my/tcsh-set-indent-functions ()
+  (when (or (string-match ".*\\.alias" (buffer-file-name))
+	    (string-match ".*csh$" (file-name-extension (buffer-file-name))))
+    (require 'csh-mode) ; https://github.com/Tux/tcsh/blob/master/csh-mode.el
+    (setq-local indent-line-function 'csh-indent-line)
+    (setq-local indent-region-function 'csh-indent-region)))
+(add-hook 'sh-set-shell-hook #'my/tcsh-set-indent-functions)
 #+END_SRC
