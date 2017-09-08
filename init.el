@@ -1,47 +1,17 @@
-;; Anything that can be automated should be automated.
+(package-initialize)
 
-;; Supress splash screen on start
-(setq inhibit-startup-message t)
-
-
-;;(when window-system ;; Could be useful sometimes
-;;(speedbar 1))
-
-;; Set path to dependencies
-(setq site-lisp-dir
-     (expand-file-name "site-lisp" user-emacs-directory))
-
-(setq custom-dir
-      (expand-file-name "custom" user-emacs-directory))
-
-(setq research-dir
-      (expand-file-name "research" user-emacs-directory))
-
-
-;; Setup load paths
-(add-to-list 'load-path site-lisp-dir)
-(add-to-list 'load-path custom-dir)
-(add-to-list 'load-path research-dir)
-
-
-;;(load-theme 'deeper-blue t)
-(load-theme 'tango-dark t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Packages Require ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'pkg-manager)
-(require 'pkg-init)
-
-(require 'pkg-org)
-(require 'pkg-shell)
-
-(require 'pkg-misc)
-
-;;(require 'root-help)   ;; download it from CERN/SLAC + place it under research directory
-(require 'phys-init)
-
-(require 'pkg-latex)
-
-;; move all the auto-generated files about custom-set variables
-;; and ede-projects to custom/.custom.el
-
-;; init.el ends here
-
+(org-babel-load-file "~/.emacs.d/config.org")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (protobuf-mode dockerfile-mode json-mode flymake-yaml yaml-mode htmlize ido-vertical-mode flx-ido ido-ubiquitous org-bullets flycheck undo-tree jedi auto-complete elpy yasnippet projectile diff-hl))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
