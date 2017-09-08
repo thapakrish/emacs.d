@@ -184,3 +184,50 @@ Indent 4 spaces.
 ;; clock
 (setq org-clock-into-drawer t)
 #+END_SRC
+
+** Latex
+#+BEGIN_SRC emacs-lisp
+;; Latex
+;; emacs app needs pdflatex env for mac
+(getenv "PATH")
+(setenv "PATH"
+  (concat
+   "/Library/TeX/texbin/" ":"
+   (getenv "PATH")
+  ))
+
+(require 'ox-latex)
+(require 'ox-md)
+(require 'ox-beamer)
+
+(add-to-list 'org-latex-classes
+             '("beamer"
+               "\\documentclass\[presentation\]\{beamer\}"
+               ("\\section\{%s\}" . "\\section*\{%s\}")
+               ("\\subsection\{%s\}" . "\\subsection*\{%s\}")
+               ("\\subsubsection\{%s\}" . "\\subsubsection*\{%s\}")))
+
+(setq org-latex-pdf-process
+      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+(add-to-list 'org-latex-packages-alist '("" "minted"))
+(setq org-latex-listings 'minted)
+
+
+
+(setq TeX-parse-self t)
+(setq TeX-PDF-mode t)
+(add-hook 'LaTeX-mode-hook
+          (lambda ()
+            (LaTeX-math-mode)
+            (setq TeX-master t)))
+#+END_SRC
+
+** Confluence
+#+BEGIN_SRC emacs-lisp
+  ;; to export org files to confluence
+  (load "~/Documents/elisp/ox-confluence.el")
+  (require 'ox-confluence)
+#+END_SRC
