@@ -29,3 +29,28 @@
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 #+END_SRC
 
+* Python
+
+Indent 4 spaces.
+
+#+BEGIN_SRC emacs-lisp
+  (setq python-indent 4)
+#+END_SRC
+** Elpy setup
+#+BEGIN_SRC emacs-lisp
+(package-initialize)
+(elpy-enable)
+(setq elpy-rpc-backend "jedi")
+
+(setenv "WORKON_HOME" "/Users/Krishna/anaconda/envs")
+(pyvenv-mode 1)
+
+(add-hook 'python-mode-hook
+      (lambda ()
+             (auto-complete-mode 1)
+             (set (make-local-variable 'ac-sources)
+                  (append ac-sources '(ac-source-yasnippet)))
+             (set (make-local-variable 'ac-find-function) 'ac-python-find)
+             (set (make-local-variable 'ac-candidate-function) 'ac-python-candidate)
+             (set (make-local-variable 'ac-auto-start) nil)))
+#+END_SRC
