@@ -54,3 +54,44 @@ Indent 4 spaces.
              (set (make-local-variable 'ac-candidate-function) 'ac-python-candidate)
              (set (make-local-variable 'ac-auto-start) nil)))
 #+END_SRC
+* Org Mode
+** Misc
+#+BEGIN_SRC emacs-lisp
+(require 'org)
+;; highlight source blocks while edit
+(setq org-src-fontify-natively t)
+
+
+;; tab
+(setq org-src-tab-acts-natively t)
+
+(setq org-src-window-setup 'current-window)
+
+
+;; spell check
+(add-hook 'org-mode-hook 'flyspell-mode)
+
+
+;; pretty bullets
+(add-hook 'org-mode-hook
+          (lambda ()
+            (org-bullets-mode t)))
+
+(setq org-ellipsis "⤵")
+
+(setenv "BROWSER" "firefox")
+
+;; For babel support
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '(
+   (sh . t)
+   (python . t)
+   (R . t)
+   (ruby . t)
+   (ditaa . t)
+   (octave . t)
+   (sqlite . t)
+   (perl . t)
+   ))
+#+END_SRC
