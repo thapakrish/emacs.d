@@ -1,4 +1,3 @@
-
 #+TITLE: Emacs configuration
 
 * PATH
@@ -12,21 +11,23 @@
 (set-exec-path-from-shell-PATH)
 #+END_SRC
 
+
 * Packages
 
 #+BEGIN_SRC emacs-lisp
-(require 'package)
+  (require 'package)
 
-;;melpa to get autoconflict on list-package
-(setq package-archives '(("ELPA" . "http://tromey.com/elpa/")
-			 ("gnu" . "http://elpa.gnu.org/packages/")
-;;			 ("marmalade" . "http://marmalade-repo.org/packages/")
-			 ;; melpa has auto-complete mode
-			 ("melpa" . "http://melpa.milkbox.net/packages/")))
+  ;;melpa to get autoconflict on list-package
+  (setq package-archives '(("ELPA" . "http://tromey.com/elpa/")
+                           ("gnu" . "http://elpa.gnu.org/packages/")
+  ;;                       ("marmalade" . "http://marmalade-repo.org/packages/")
+                           ;; melpa has auto-complete mode
+                           ("melpa" . "http://melpa.milkbox.net/packages/")))
 
-;; Stable stable version from MELPA
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+  ;; Stable stable version from MELPA
+  (add-to-list 'package-archives
+               '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+  ;; (require 'auto-complete)
 #+END_SRC
 
 * Python
@@ -34,7 +35,7 @@
 Indent 4 spaces.
 
 #+BEGIN_SRC emacs-lisp
-  (setq python-indent 4)
+    (setq python-indent 4)
 #+END_SRC
 ** Elpy setup
 #+BEGIN_SRC emacs-lisp
@@ -57,44 +58,44 @@ Indent 4 spaces.
 * Org Mode
 ** Barebones
 #+BEGIN_SRC emacs-lisp
-  (require 'org)
-  ;; highlight source blocks while edit
-  (setq org-src-fontify-natively t)
+    (require 'org)
+    ;; highlight source blocks while edit
+    (setq org-src-fontify-natively t)
+
+    ;; tab
+    (setq org-src-tab-acts-natively t)
+
+    (setq org-src-window-setup 'current-window)
 
 
-  ;; tab
-  (setq org-src-tab-acts-natively t)
-
-  (setq org-src-window-setup 'current-window)
+    ;; spell check
+    (add-hook 'org-mode-hook 'flyspell-mode)
 
 
-  ;; spell check
-  (add-hook 'org-mode-hook 'flyspell-mode)
+    ;; pretty bullets
+    (add-hook 'org-mode-hook
+              (lambda ()
+                (org-bullets-mode t)))
 
+    (setq org-ellipsis "⤵")
 
-  ;; pretty bullets
-  (add-hook 'org-mode-hook
-            (lambda ()
-              (org-bullets-mode t)))
+    (setenv "BROWSER" "firefox")
 
-  (setq org-ellipsis "⤵")
-
-  (setenv "BROWSER" "firefox")
-
-  ;; For babel support
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '(
-     (sh . t)
-     (python . t)
-     (R . t)
-     (gnuplot . t)
-     (ruby . t)
-     (ditaa . t)
-     (octave . t)
-     (sqlite . t)
-     (perl . t)
-     ))
+    ;; For babel support
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '(
+       (sh . t)
+       (python . t)
+       (scala . t)
+       (R . t)
+       (gnuplot . t)
+       (ruby . t)
+       (ditaa . t)
+       (octave . t)
+       (sqlite . t)
+       (perl . t)
+       ))
 #+END_SRC
 
 ** Capture, Agenda
@@ -127,12 +128,12 @@ Indent 4 spaces.
 
 
 ;; org agenda files
-(setq org-agenda-files (list "~/org/work.org"
-			     "~/org/emacs.org"
-			     "~/org/links.org"
-			     "~/org/notes.org"
-			     "~/org/misc.org"
-			     "~/org/personal.org"))
+(setq org-agenda-files (list "/Users/krishna.thapa/Google Drive/org/work.org"
+			     "/Users/krishna.thapa/Google Drive/org/emacs.org"
+			     "/Users/krishna.thapa/Google Drive/org/links.org"
+			     "/Users/krishna.thapa/Google Drive/org/notes.org"
+			     "/Users/krishna.thapa/Google Drive/org/misc.org"
+			     "/Users/krishna.thapa/Google Drive/org/personal.org"))
 
 
 ;; to include diary to agenda
@@ -162,19 +163,19 @@ Indent 4 spaces.
       (quote (
 ;;	      ("t" "todo" entry (file+headline "~/org/refile.org" "TODO_Items")
 ;;	       "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-	      ("t" "Todo" entry (file+headline "~/org/refile.org" "Tasks")
+	      ("t" "Todo" entry (file+headline "/Users/krishna.thapa/Google Drive/org/todos.org" "Tasks")
 	       "* TODO %?\n  %i\n  %a")
-	      ("n" "note" entry (file "~/org/notes.org")
+	      ("n" "note" entry (file "/Users/krishna.thapa/Google Drive/org/notes.org")
 	       "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-	      ("j" "Journal" entry (file+datetree "~/org/notes.org")
+	      ("j" "Journal" entry (file+datetree "/Users/krishna.thapa/Google Drive/org/notes.org")
 	       "* %?\n%U\n" :clock-in t :clock-resume t)
 ;;	      ("n" "Note" entry (file+headline "~/org/current" "Notes")
 ;;	       "* Note %?\n%T")
-	      ("l" "Link" entry (file+headline "~/org/links.org" "Links")
+	      ("l" "Link" entry (file+headline "/Users/krishna.thapa/Google Drive/org/links.org" "Links")
 	       "* %? %^L %^g \n%T" :prepend t)
-	      ("a" "Appointment" entry (file  "~/org/notes.org" "Appointments")
+	      ("a" "Appointment" entry (file  "/Users/krishna.thapa/Google Drive/org/refile.org" "Appointments")
 	       "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n")
-	      ("c" "CodeBlocks" entry (file+headline "~/org/refile.org" "CodeBlocks")
+	      ("c" "CodeBlocks" entry (file+headline "/Users/krishna.thapa/Google Drive/org/refile.org" "CodeBlocks")
 	       "* %?\n%i\n"))))
 
 
@@ -241,6 +242,36 @@ Indent 4 spaces.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
+;; https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
+(setq version-control t     ;; Use version numbers for backups.
+      kept-new-versions 10  ;; Number of newest versions to keep.
+      kept-old-versions 0   ;; Number of oldest versions to keep.
+      delete-old-versions t ;; Don't ask to delete excess backup versions.
+      backup-by-copying t)  ;; Copy all files, don't rename them.
+
+(setq vc-make-backup-files t)
+
+;; Default and per-save backups go here:
+(setq backup-directory-alist '(("" . "~/.emacs.d/backup/per-save")))
+
+(defun force-backup-of-buffer ()
+  ;; Make a special "per session" backup at the first save of each
+  ;; emacs session.
+  (when (not buffer-backed-up)
+    ;; Override the default parameters for per-session backups.
+    (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
+          (kept-new-versions 3))
+      (backup-buffer)))
+  ;; Make a "per save" backup on each save.  The first save results in
+  ;; both a per-session and a per-save backup, to keep the numbering
+  ;; of per-save backups consistent.
+  (let ((buffer-backed-up nil))
+    (backup-buffer)))
+
+(add-hook 'before-save-hook  'force-backup-of-buffer)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
 (global-undo-tree-mode)
 #+END_SRC
 
@@ -262,3 +293,5 @@ Indent 4 spaces.
     (setq-local indent-region-function 'csh-indent-region)))
 (add-hook 'sh-set-shell-hook #'my/tcsh-set-indent-functions)
 #+END_SRC
+
+
