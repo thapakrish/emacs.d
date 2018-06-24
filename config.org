@@ -11,6 +11,11 @@
 (set-exec-path-from-shell-PATH)
 #+END_SRC
 
+#+BEGIN_SRC emacs-lisp
+(progn(require 'comint)
+(define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
+(define-key comint-mode-map (kbd "<down>") 'comint-next-input))
+#+END_SRC
 
 * Packages
 
