@@ -43,23 +43,41 @@ Indent 4 spaces.
     (setq python-indent 4)
 #+END_SRC
 ** Elpy setup
-#+BEGIN_SRC emacs-lisp
-(package-initialize)
-(elpy-enable)
-(setq elpy-rpc-backend "jedi")
+   #+BEGIN_SRC emacs-lisp
+           (package-initialize)
+           (elpy-enable)
+           (setq elpy-rpc-backend "jedi")
 
-(setenv "WORKON_HOME" "/Users/Krishna/anaconda/envs")
-(pyvenv-mode 1)
 
-(add-hook 'python-mode-hook
-      (lambda ()
-             (auto-complete-mode 1)
-             (set (make-local-variable 'ac-sources)
-                  (append ac-sources '(ac-source-yasnippet)))
-             (set (make-local-variable 'ac-find-function) 'ac-python-find)
-             (set (make-local-variable 'ac-candidate-function) 'ac-python-candidate)
-             (set (make-local-variable 'ac-auto-start) nil)))
-#+END_SRC
+
+           ;; Standard Jedi.el setting
+           (add-hook 'python-mode-hook 'jedi:setup)
+           (setq jedi:complete-on-dot t)
+
+       (setq jedi:server-command '("/Users/krishna.thapa/Documents/emacs.d/emacs-jedi-master/jediepcserver.py"))
+
+
+     (add-hook 'python-mode-hook 'jedi:setup)
+         
+           ;;((add-hookadd-hook  'python-mode-hook'python-mode-hook  'jedi:setup'jedi:setup))
+           ;; ((setqsetq  jedi:complete-on-dotjedi:complete-on-d  t)                 ; optional
+
+           ;;(setq jedi:get-in-function-call-delay 10000000)
+           ;;(add-hook 'python-mode-hook 'jedi-config:setup-keys)
+
+
+           (setenv "WORKON_HOME" "/anaconda3/envs")
+           (pyvenv-mode 1)
+
+           (add-hook 'python-mode-hook
+                 (lambda ()
+                        (auto-complete-mode 1)
+                        (set (make-local-variable 'ac-sources)
+                             (append ac-sources '(ac-source-yasnippet)))
+                        (set (make-local-variable 'ac-find-function) 'ac-python-find)
+                        (set (make-local-variable 'ac-candidate-function) 'ac-python-candidate)
+                        (set (make-local-variable 'ac-auto-start) nil)))
+   #+END_SRC
 * Org Mode
 ** Barebones
 #+BEGIN_SRC emacs-lisp
