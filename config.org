@@ -156,6 +156,7 @@ Indent 4 spaces.
 			     "/Users/krishna.thapa/Google Drive/org/links.org"
 			     "/Users/krishna.thapa/Google Drive/org/notes.org"
 			     "/Users/krishna.thapa/Google Drive/org/misc.org"
+			     "/Users/krishna.thapa/Google Drive/org/todos.org"
 			     "/Users/krishna.thapa/Google Drive/org/personal.org"))
 
 
@@ -186,7 +187,7 @@ Indent 4 spaces.
       (quote (
 ;;	      ("t" "todo" entry (file+headline "~/org/refile.org" "TODO_Items")
 ;;	       "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-	      ("t" "Todo" entry (file+headline "/Users/krishna.thapa/Google Drive/org/todos.org" "Tasks")
+	      ("t" "Todo" entry (file "/Users/krishna.thapa/Google Drive/org/todos.org")
 	       "* TODO %?\n  %i\n  %a")
 	      ("n" "note" entry (file "/Users/krishna.thapa/Google Drive/org/notes.org")
 	       "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
@@ -257,6 +258,18 @@ Indent 4 spaces.
   (require 'ox-confluence)
 #+END_SRC
 
+** Local variable per OS
+#+BEGIN_SRC emacs-lisp
+;;  (use-package org
+;;    :mode (("\\.org$" . org-mode))
+;;    :ensure org-plus-contrib
+;;    :config
+;;    (progn
+;;      ;; config stuff
+;;      (setq org-ndl-path '/Users/krishna.thapa/')
+;;      (setq org-home-path '/Users/Krishna/')
+;;      ))
+#+END_SRC
 * Misc
 #+BEGIN_SRC emacs-lisp
 ;; which key mode
@@ -298,6 +311,10 @@ Indent 4 spaces.
 (global-undo-tree-mode)
 #+END_SRC
 
+-- navigate projects
+#+BEGIN_SRC emacs-lisp
+(projectile-mode)
+#+END_SRC
 * Shell
 #+BEGIN_SRC emacs-lisp
 ;; For case insensitive tab completion
@@ -317,7 +334,7 @@ Indent 4 spaces.
 (add-hook 'sh-set-shell-hook #'my/tcsh-set-indent-functions)
 #+END_SRC
 
-
+  
 * PDF Tools
 #+BEGIN_SRC emacs-lisp
 (use-package pdf-tools
@@ -348,3 +365,17 @@ Indent 4 spaces.
 (pdf-tools-install)
 #+END_SRC
   
+* Magit
+#+BEGIN_SRC emacs-lisp
+  ;;shortcut
+  (global-set-key (kbd "C-x g") 'magit-status)
+
+  ;; enable spell checking
+  (add-hook 'git-commit-mode-hook 'turn-on-flyspell)
+
+#+END_SRC
+
+* Ditaa
+#+BEGIN_SRC emacs-lisp
+(setq org-ditaa-jar-path "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")
+#+END_SRC
