@@ -325,13 +325,19 @@ Indent 4 spaces.
 (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
 (define-key comint-mode-map (kbd "<down>") 'comint-next-input)
 
-(defun my/tcsh-set-indent-functions ()
-  (when (or (string-match ".*\\.alias" (buffer-file-name))
-	    (string-match ".*csh$" (file-name-extension (buffer-file-name))))
-    (require 'csh-mode) ; https://github.com/Tux/tcsh/blob/master/csh-mode.el
-    (setq-local indent-line-function 'csh-indent-line)
-    (setq-local indent-region-function 'csh-indent-region)))
-(add-hook 'sh-set-shell-hook #'my/tcsh-set-indent-functions)
+;;(defun my/tcsh-set-indent-functions ()
+;;  (when (or (string-match ".*\\.alias" (buffer-file-name))
+;;	    (string-match ".*csh$" (file-name-extension (buffer-file-name))))
+;;    (require 'csh-mode) ; https://github.com/Tux/tcsh/blob/master/csh-mode.el
+;;    (setq-local indent-line-function 'csh-indent-line)
+;;    (setq-local indent-region-function 'csh-indent-region)))
+;;(add-hook 'sh-set-shell-hook #'my/tcsh-set-indent-functions)
+<<<<<<< Updated upstream
+=======
+
+#+END_SRC
+>>>>>>> Stashed changes
+
 #+END_SRC
 
   
@@ -349,12 +355,12 @@ Indent 4 spaces.
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-;;; Install epdfinfo via 'brew install pdf-tools' and then install the
-;;; pdf-tools elisp via the use-package below. To upgrade the epdfinfo
-;;; server, just do 'brew upgrade pdf-tools' prior to upgrading to newest
-;;; pdf-tools package using Emacs package system. If things get messed
-;;; up, just do 'brew uninstall pdf-tools', wipe out the elpa
-;;; pdf-tools package and reinstall both as at the start.
+;; Install epdfinfo via 'brew install pdf-tools' and then install the
+;; pdf-tools elisp via the use-package below. To upgrade the epdfinfo
+;; server, just do 'brew upgrade pdf-tools' prior to upgrading to newest
+;; pdf-tools package using Emacs package system. If things get messed
+;; up, just do 'brew uninstall pdf-tools', wipe out the elpa
+;; pdf-tools package and reinstall both as at the start.
 
 (use-package pdf-tools
  :ensure t
@@ -365,6 +371,8 @@ Indent 4 spaces.
 (pdf-tools-install)
 #+END_SRC
   
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
 * Magit
 #+BEGIN_SRC emacs-lisp
   ;;shortcut
@@ -378,4 +386,21 @@ Indent 4 spaces.
 * Ditaa
 #+BEGIN_SRC emacs-lisp
 (setq org-ditaa-jar-path "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")
+=======
+=======
+>>>>>>> Stashed changes
+
+* Funcs
+#+BEGIN_SRC emacs-lisp
+;; fill upto end of line with char
+(defun fill-to-end (char)
+  (interactive "cFill Character:")
+  (save-excursion
+    (end-of-line)
+    (while (< (current-column) 79)
+      (insert-char char))))
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 #+END_SRC
