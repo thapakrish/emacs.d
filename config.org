@@ -1,129 +1,332 @@
 #+TITLE: Emacs configuration
+#+AUTHOR: Krishna Thapa
 
-* PATH
+* Personal
 #+BEGIN_SRC emacs-lisp
-;; to make python run anaconda-python and not the default one
-(defun set-exec-path-from-shell-PATH ()
-        (interactive)
-        (let ((path-from-shell (replace-regexp-in-string "^.*\n.*shell\n" "" (shell-command-to-string "$SHELL --login -i -c 'echo $PATH'"))))
-        (setenv "PATH" path-from-shell)
-        (setq exec-path (split-string path-from-shell path-separator))))
-(set-exec-path-from-shell-PATH)
-#+END_SRC
-
-#+BEGIN_SRC emacs-lisp
-(progn(require 'comint)
-(define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
-(define-key comint-mode-map (kbd "<down>") 'comint-next-input))
+(setq user-full-name "Krishna Thapa"
+        user-mail-address "thapakrish@gmail.com"
+        calendar-location-name "Santa Clara, CA")
 #+END_SRC
 
 * Packages
+** Package repositories
 
 #+BEGIN_SRC emacs-lisp
   (require 'package)
+  (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+			  ("marmalade" . "https://marmalade-repo.org/packages/")
+			  ("melpa" . "https://melpa.org/packages/")))
 
-  ;;melpa to get autoconflict on list-package
-  (setq package-archives '(("ELPA" . "http://tromey.com/elpa/")
-                           ("gnu" . "http://elpa.gnu.org/packages/")
-  ;;                       ("marmalade" . "http://marmalade-repo.org/packages/")
-                           ;; melpa has auto-complete mode
-                           ("melpa" . "http://melpa.milkbox.net/packages/")))
-
-  ;; Stable stable version from MELPA
   (add-to-list 'package-archives
-               '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-  ;; (require 'auto-complete)
+	       '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+
 #+END_SRC
 
-* Python
+** Packages to be installed
 
+#+BEGIN_SRC emacs-lisp
+
+      (defvar my-packages '(ac-cider
+			  auto-complete
+			  beacon
+			  browse-kill-ring
+			  cider
+			  comment-tags
+			  darktooth-theme
+			  dumb-jump
+			  edit-indirect
+			  elfeed
+			  elfeed-goodies
+			  elfeed-org
+			  evil
+			  evil-escape
+			  evil-leader
+			  evil-mc
+			  evil-numbers
+			  evil-surround
+			  exec-path-from-shell
+			  flycheck
+			  flycheck-flow
+			  impatient-mode
+			  ini-mode
+			  ivy counsel swiper
+			  ledger-mode
+			  magit
+			  markdown-mode
+			  parinfer
+			  pdf-tools
+			  projectile
+			  rainbow-mode
+			  restclient
+			  robe
+			  smex
+			  synosaurus
+			  tern
+			  tern-auto-complete
+			  web-mode
+			  which-key
+			  writegood-mode
+			  writeroom-mode
+			  yaml-mode
+			  zenburn-theme))
+#+END_SRC
+
+** Install packages
+
+#+BEGIN_SRC emacs-lisp
+(dolist (p my-packages)
+    (unless (package-installed-p p)
+    (package-refresh-contents)
+    (package-install p))
+    (add-to-list 'package-selected-packages p))
+#+END_SRC
+* LateX
+** Setup
+#+BEGIN_SRC emacs-lisp
+  ;; emacs app needs pdflatex env for mac
+  (getenv "PATH")
+  (setenv "PATH"
+    (concat
+     "/Library/TeX/texbin/" ":"
+     (getenv "PATH")
+    ))
+
+  (require 'ox-latex)
+  (require 'ox-md)
+  (require 'ox-beamer)
+
+  (add-to-list 'org-latex-classes
+	       '("beamer"
+		 "\\documentclass\[presentation\]\{beamer\}"
+		 ("\\section\{%s\}" . "\\section*\{%s\}")
+		 ("\\subsection\{%s\}" . "\\subsection*\{%s\}")
+		 ("\\subsubsection\{%s\}" . "\\subsubsection*\{%s\}")))
+
+  (setq org-latex-pdf-process
+	'("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	  "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+	  "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+  (setq org-latex-listings 'minted)
+
+
+
+  (setq TeX-parse-self t)
+  (setq TeX-PDF-mode t)
+  (add-hook 'LaTeX-mode-hook
+	    (lambda ()
+	      (LaTeX-math-mode)
+	      (setq TeX-master t)))
+#+END_SRC
+** Template
+#+BEGIN_SRC emacs-lisp
+    (define-skeleton latex-skeleton
+    "Inserts a Latex letter skeleton into current buffer.
+    This only makes sense for empty buffers."
+    "Receiver: "
+    "\\documentclass[a4paper]{letter}\n"
+    "\\usepackage[latin1]{inputenc}\n"
+    "\\name{K. Thapa}\n"
+    "\\address{Krishna Thapa \\\\ Santa Clara \\\\ california, USA}\n"
+    "\\begin{document}\n"
+    "\\begin{letter}{" str | " *** Blah Blah *** " "}\n"
+    "\\opening{" _ "}\n\n"
+    "\\closing{Sincerely,}\n"
+    "\\end{letter}\n"
+    "\\end{document}\n")
+
+    (global-set-key "\C-cl" 'latex-skeleton)
+#+END_SRC
+* Python
+** Mode
 Indent 4 spaces.
 
 #+BEGIN_SRC emacs-lisp
-    (setq python-indent 4)
-#+END_SRC
-** Elpy setup
-   #+BEGIN_SRC emacs-lisp
-           (package-initialize)
-           (elpy-enable)
-           (setq elpy-rpc-backend "jedi")
-
-
-
-           ;; Standard Jedi.el setting
-           (add-hook 'python-mode-hook 'jedi:setup)
-           (setq jedi:complete-on-dot t)
-
-       (setq jedi:server-command '("/Users/krishna.thapa/Documents/emacs.d/emacs-jedi-master/jediepcserver.py"))
-
-
-     (add-hook 'python-mode-hook 'jedi:setup)
-         
-           ;;((add-hookadd-hook  'python-mode-hook'python-mode-hook  'jedi:setup'jedi:setup))
-           ;; ((setqsetq  jedi:complete-on-dotjedi:complete-on-d  t)                 ; optional
-
-           ;;(setq jedi:get-in-function-call-delay 10000000)
-           ;;(add-hook 'python-mode-hook 'jedi-config:setup-keys)
-
-
-           (setenv "WORKON_HOME" "/anaconda3/envs")
-           (pyvenv-mode 1)
-
-           (add-hook 'python-mode-hook
-                 (lambda ()
-                        (auto-complete-mode 1)
-                        (set (make-local-variable 'ac-sources)
-                             (append ac-sources '(ac-source-yasnippet)))
-                        (set (make-local-variable 'ac-find-function) 'ac-python-find)
-                        (set (make-local-variable 'ac-candidate-function) 'ac-python-candidate)
-                        (set (make-local-variable 'ac-auto-start) nil)))
-   #+END_SRC
-* Org Mode
-** Barebones
-#+BEGIN_SRC emacs-lisp
-    (require 'org)
-    ;; highlight source blocks while edit
-    (setq org-src-fontify-natively t)
-
-    ;; tab
-    (setq org-src-tab-acts-natively t)
-
-    (setq org-src-window-setup 'current-window)
-
-
-    ;; spell check
-    (add-hook 'org-mode-hook 'flyspell-mode)
-
-
-    ;; pretty bullets
-    (add-hook 'org-mode-hook
-              (lambda ()
-                (org-bullets-mode t)))
-
-    (setq org-ellipsis "⤵")
-
-    (setenv "BROWSER" "firefox")
-
-    ;; For babel support
-    (org-babel-do-load-languages
-     'org-babel-load-languages
-     '(
-       (sh . t)
-       (python . t)
-       (scala . t)
-       (R . t)
-       (gnuplot . t)
-       (ruby . t)
-       (ditaa . t)
-       (octave . t)
-       (sqlite . t)
-       (perl . t)
-       ))
+(setq python-indent 4)
+;; (global-semantic-folding-mode t)
+(add-hook 'python-mode-hook 'outline-minor-mode)
+(add-hook 'outline-minor-mode-hook
+            (lambda () (local-set-key "\C-c\C-c"
+                                    outline-mode-prefix-map)))
 #+END_SRC
 
-** Capture, Agenda
+** Elpy
 #+BEGIN_SRC emacs-lisp
-;; Some keys
+
+(require 'pyvenv)
+(pyvenv-workon "/Users/kthapa/venvs/emacs/bin/python")
+
+(elpy-enable)
+(pyvenv-activate "/Users/kthapa/venvs/emacs")
+
+
+(setq elpy-rpc-backend "jedi")
+
+(use-package jedi
+:ensure t
+:init
+(add-hook 'python-mode-hook 'jedi:setup)
+(add-hook 'python-mode-hook 'jedi:ac-setup))
+
+
+(use-package flycheck
+:ensure t
+:init
+(global-flycheck-mode t))
+
+
+(add-hook 'python-mode-hook 'jedi:setup)
+(setq jedi:complete-on-dot t)
+#+END_SRC
+
+** Jedi
+#+BEGIN_SRC emacs-lisp
+(setq elpy-rpc-backend "jedi")
+    (use-package jedi-core
+      :ensure
+      :config
+      ;; (setq jedi:use-shortcuts t) ; M-. and M-,
+      (add-hook 'python-mode-hook 'jedi:setup)
+      (add-hook 'python-mode-hook 'jedi:ac-setup)
+      (setq jedi:complete-on-dot t)
+      (setq jedi:environment-root "jedi")
+      (setq jedi:environment-virtualenv
+            (append python-environment-virtualenv
+                    '("--python" "/Users/kthapa/venvs/emacs/bin/python")))
+      (use-package company-jedi
+        :ensure
+        :config
+        (add-hook 'python-mode-hook
+                  (lambda () (add-to-list 'company-backends
+                                          'company-jedi)))))
+#+END_SRC
+
+* SQL
+#+BEGIN_SRC sql
+  (setq sql-postgres-program "/usr/local/bin/psql")
+  (require 'epa-file)
+  (custom-set-variables '(epg-gpg-program  "/usr/local/bin/gpg"))
+  (epa-file-enable)
+
+
+(add-hook 'sql-interactive-mode-hook
+          (lambda ()
+            (toggle-truncate-lines t)))
+
+#+END_SRC
+
+* Org
+** Setup
+#+BEGIN_SRC emacs-lisp
+  (require 'org)
+
+  ;; pretty bullets
+  (add-hook 'org-mode-hook
+	    (lambda ()
+	      (org-bullets-mode t)))
+  (setq org-ellipsis "⤵")
+  (setq org-src-fontify-natively t)
+  (setq org-src-tab-acts-natively t)
+
+  (add-to-list 'ac-modes 'Org-mode) ;; for autocomplete to work in org mode
+  (ac-set-trigger-key "TAB")
+
+  ;; highlight source blocks while edit
+  (setq org-src-fontify-natively t)
+
+  ;; tab
+  (setq org-src-tab-acts-natively t)
+
+  (setq org-src-window-setup 'current-window)
+
+
+  ;; spell check
+  (add-hook 'org-mode-hook 'flyspell-mode)
+
+  ;; For babel support
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (shell . t)
+     (python . t)
+     ;; (scala . t)
+     (R . t)
+     (gnuplot . t)
+     (ruby . t)
+     (ditaa . t)
+     (octave . t)
+     (sqlite . t)
+     (perl . t)
+     ))
+
+#+END_SRC
+
+** GTD
+#+BEGIN_SRC emacs-lisp
+  ;; set org keywords
+  (setq org-todo-keywords
+	'((sequence  "TODO(t)" "IN-PROGRESS(p)"
+		     "WAITING(w)" "CANCELED(c)"
+		     "DONE(d!)")))
+
+
+  (setf org-todo-keyword-faces
+	'(("IN-PROGRESS" . (:foreground "yellow" :background "red" :weight bold))
+	  ("TODO" . (:foreground "green" :background "black" :weight bold))
+	  ("CANCELED" . (:foreground "cyan" :background "steelblue" :weight bold))
+	  ("WAITING" . (:foreground "yellow" :background "magenta2" :weight bold))
+	  ("DONE" . (:foreground "yellow" :background "red"))))
+
+
+  (setq org-agenda-files '("~/GoogleDrive/gtd"))
+
+
+  ;; to include diary to agenda
+  (setq org-agenda-include-diary t)
+
+  ;; org-todo-state-map
+  '(org-agenda-ndays 7)
+
+  ;;show repetitive agenda entries only once
+  (setq org-agenda-repeating-timestamp-show-all nil)
+
+  ;; org notes file
+  (setq org-default-notes-file "~/GoogleDrive/gtd/refile.org")
+
+  ;; use C-c c to start capture mode
+  (global-set-key (kbd "C-c c") 'org-capture)
+
+ 
+  (setq org-capture-templates
+	(quote (
+		("t" "Todo [inbox]" entry (file "~/GoogleDrive/gtd/inbox.org")
+		 "* TODO %?\n  %i\n  %a")
+		("n" "note" entry (file "~/GoogleDrive/gtd/notes.org")
+		 "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
+		("j" "Journal" entry (file+datetree "~/GoogleDrive/gtd/misc.org")
+		 "* %?\n%U\n" :clock-in t :clock-resume t)
+		("l" "Link" entry (file+headline "~/GoogleDrive/gtd/links.org" "Links")
+		 "* %? %^L %^g \n%T" :prepend t)
+		("a" "Appointment" entry (file+headline  "~/GoogleDrive/gtd/inbox.org" "Appointments")
+		 "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n")
+		("c" "CodeBlocks" entry (file+headline "~/GoogleDrive/gtd/inbox.org" "CodeBlocks")
+		 "* %?\n%i\n"))))
+
+  ;; where to refile
+  (setq org-refile-targets (quote ((nil :maxlevel . 9)
+				   (org-agenda-files :maxlevel . 9))))
+
+  (setq org-refile-targets '(("~/GoogleDrive/gtd/gtd.org" :maxlevel . 3)
+			     ("~/GoogleDrive/gtd/someday.org" :level . 1)
+			     ("~/GoogleDrive/gtd/notes.org" :maxlevel . 2)))
+
+  ;; clock
+  (setq org-clock-into-drawer t)
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 (global-set-key "\C-cl" 'org-store-link)
 (global-set-key "\C-cc" 'org-capture)
@@ -132,33 +335,9 @@ Indent 4 spaces.
 (setq org-log-done 'time)
 (global-font-lock-mode 1)
 
-;; set org keywords
-(setq org-todo-keywords
-      '((sequence  "TODO(t)" "Active(a)" "NEXT(n)"
-		  "Hold(h)"  "WAITING(w)" "Someday(s)" "Canceled(c)"
-		  "DONE(d!)")))
-
-
-(setf org-todo-keyword-faces
-      '(("NEXT" . (:foreground "yellow" :background "red" :weight bold))
-	("Active" . (:foreground "yellow" :background "red" :weight bold))
-	("TODO" . (:foreground "green" :background "black" :weight bold))
-	("Canceled" . (:foreground "cyan" :background "steelblue" :weight bold))
-	("Hold" . (:foreground "cyan" :background "blue" :weight bold))
-	("WAITING" . (:foreground "yellow" :background "magenta2" :weight bold))
-	("Someday" . (:foreground "yellow" :background "blue" :weight bold))
-	("DONE" . (:foreground "yellow" :background "red"))))
-
-
-;; org agenda files
-(setq org-agenda-files (list "/Users/krishna.thapa/Google Drive/org/work.org"
-			     "/Users/krishna.thapa/Google Drive/org/emacs.org"
-			     "/Users/krishna.thapa/Google Drive/org/links.org"
-			     "/Users/krishna.thapa/Google Drive/org/notes.org"
-			     "/Users/krishna.thapa/Google Drive/org/misc.org"
-			     "/Users/krishna.thapa/Google Drive/org/todos.org"
-			     "/Users/krishna.thapa/Google Drive/org/personal.org"))
-
+(setq org-agenda-start-day "-1d")
+(setq org-agenda-span 5)
+(setq org-agenda-start-on-weekday nil)
 
 ;; to include diary to agenda
 (setq org-agenda-include-diary t)
@@ -171,150 +350,229 @@ Indent 4 spaces.
 
 
 ;; org notes file
-(setq org-default-notes-file (concat org-directory "/notes.org"))
+;; (setq org-default-notes-file (concat org-directory "/notes.org"))
 
-;; set capture templates
-
-;;(setq org-directory "~/git/org")
-;;(setq org-default-notes-file "~/git/org/refile.org")
-
-;; I use C-c c to start capture mode
 (global-set-key (kbd "C-c c") 'org-capture)
-
-;; source : http://doc.norang.ca/org-mode.html#Capture
-;; Capture templates for: TODO tasks, Notes, appointments, phone calls, meetings, and org-protocol
-(setq org-capture-templates
-      (quote (
-;;	      ("t" "todo" entry (file+headline "~/org/refile.org" "TODO_Items")
-;;	       "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-	      ("t" "Todo" entry (file "/Users/krishna.thapa/Google Drive/org/todos.org")
-	       "* TODO %?\n  %i\n  %a")
-	      ("n" "note" entry (file "/Users/krishna.thapa/Google Drive/org/notes.org")
-	       "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-	      ("j" "Journal" entry (file+datetree "/Users/krishna.thapa/Google Drive/org/notes.org")
-	       "* %?\n%U\n" :clock-in t :clock-resume t)
-;;	      ("n" "Note" entry (file+headline "~/org/current" "Notes")
-;;	       "* Note %?\n%T")
-	      ("l" "Link" entry (file+headline "/Users/krishna.thapa/Google Drive/org/links.org" "Links")
-	       "* %? %^L %^g \n%T" :prepend t)
-	      ("a" "Appointment" entry (file  "/Users/krishna.thapa/Google Drive/org/refile.org" "Appointments")
-	       "* TODO %?\n:PROPERTIES:\n\n:END:\nDEADLINE: %^T \n %i\n")
-	      ("c" "CodeBlocks" entry (file+headline "/Users/krishna.thapa/Google Drive/org/refile.org" "CodeBlocks")
-	       "* %?\n%i\n"))))
-
 
 ;; where to refile
 (setq org-refile-targets (quote ((nil :maxlevel . 9)
-				 (org-agenda-files :maxlevel . 9))))
+        (org-agenda-files :maxlevel . 9))))
 
 ;; clock
 (setq org-clock-into-drawer t)
+
+#+END_SRC
+** Agenda View
+#+BEGIN_SRC emacs-lisp
+  ;; Modify agenda view
+  ;; https://blog.aaronbieber.com/2016/09/24/an-agenda-for-life-with-org-mode.html
+  (defun kt-org-skip-subtree-if-priority (priority)
+    "Skip an agenda subtree if it has a priority of PRIORITY.
+
+  PRIORITY may be one of the characters ?A, ?B, or ?C."
+    (let ((subtree-end (save-excursion (org-end-of-subtree t)))
+	  (pri-value (* 1000 (- org-lowest-priority priority)))
+	  (pri-current (org-get-priority (thing-at-point 'line t))))
+      (if (= pri-value pri-current)
+	  subtree-end
+	nil)))
+
+
+  (defun kt-org-skip-subtree-if-habit ()
+    "Skip an agenda entry if it has a STYLE property equal to \"habit\"."
+    (let ((subtree-end (save-excursion (org-end-of-subtree t))))
+      (if (string= (org-entry-get nil "STYLE") "habit")
+	  subtree-end
+	nil)))
+
+(setq org-agenda-custom-commands
+      '(("d" "Daily agenda and all TODOs"
+         ((tags "PRIORITY=\"A\""
+                ((org-agenda-skip-function '(org-agenda-skip-entry-if 'todo 'done))
+                 (org-agenda-overriding-header "High-prioritym Unnfinished:")))
+          (agenda "" ((org-agenda-ndays 1)))
+          (alltodo ""
+                   ((org-agenda-skip-function '(or (kt-org-skip-subtree-if-habit)
+                                                   (kt-org-skip-subtree-if-priority ?A)
+                                                   (org-agenda-skip-if nil '(scheduled deadline))))
+                    (org-agenda-overriding-header "All normal priority:"))))
+         ((org-agenda-compact-blocks t)))))
 #+END_SRC
 
-** LateX
+** Easy templates
 #+BEGIN_SRC emacs-lisp
-;; Latex
-;; emacs app needs pdflatex env for mac
-(getenv "PATH")
-(setenv "PATH"
-  (concat
-   "/Library/TeX/texbin/" ":"
-   (getenv "PATH")
-  ))
 
-(require 'ox-latex)
-(require 'ox-md)
-(require 'ox-beamer)
-
-(add-to-list 'org-latex-classes
-             '("beamer"
-               "\\documentclass\[presentation\]\{beamer\}"
-               ("\\section\{%s\}" . "\\section*\{%s\}")
-               ("\\subsection\{%s\}" . "\\subsection*\{%s\}")
-               ("\\subsubsection\{%s\}" . "\\subsubsection*\{%s\}")))
-
-(setq org-latex-pdf-process
-      '("pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-
-(add-to-list 'org-latex-packages-alist '("" "minted"))
-(setq org-latex-listings 'minted)
+;;#+TITLE: 
+;;#+OPTIONS: html-postamble:nil whn:nil toc:nil nav:nil
+;;#+HTML_HEAD:
+;;#+HTML_HEAD_EXTRA: 
 
 
+(add-to-list 'org-structure-template-alist
+             '("P" "#+TITLE:\n#+OPTIONS: html-postamble:nil whn:nil toc:nil nav:nil\n#+HTML_HEAD:\n#+HTML_HEAD_EXTRA:\n\n? "))
 
-(setq TeX-parse-self t)
-(setq TeX-PDF-mode t)
-(add-hook 'LaTeX-mode-hook
-          (lambda ()
-            (LaTeX-math-mode)
-            (setq TeX-master t)))
+
+;; b: basic
+(add-to-list 'org-structure-template-alist
+             '("b" "-*- mode: org; -*-\n#+OPTIONS: ^:nil\n? "))
+
 #+END_SRC
 
 ** Confluence
+
 #+BEGIN_SRC emacs-lisp
   ;; to export org files to confluence
-  (load "~/Documents/elisp/ox-confluence.el")
-  (require 'ox-confluence)
-#+END_SRC
-
-** Local variable per OS
-#+BEGIN_SRC emacs-lisp
-;;  (use-package org
-;;    :mode (("\\.org$" . org-mode))
-;;    :ensure org-plus-contrib
-;;    :config
-;;    (progn
-;;      ;; config stuff
-;;      (setq org-ndl-path '/Users/krishna.thapa/')
-;;      (setq org-home-path '/Users/Krishna/')
-;;      ))
-#+END_SRC
-* Misc
-#+BEGIN_SRC emacs-lisp
-;; which key mode
-(require 'which-key)
-(which-key-mode)
+  ;; (load "~/Documents/elisp/ox-confluence.el")
+  ;; (require 'ox-confluence)
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp
-;; https://stackoverflow.com/questions/151945/how-do-i-control-how-emacs-makes-backup-files
-(setq version-control t     ;; Use version numbers for backups.
-      kept-new-versions 10  ;; Number of newest versions to keep.
-      kept-old-versions 0   ;; Number of oldest versions to keep.
-      delete-old-versions t ;; Don't ask to delete excess backup versions.
-      backup-by-copying t)  ;; Copy all files, don't rename them.
-
-(setq vc-make-backup-files t)
-
-;; Default and per-save backups go here:
-(setq backup-directory-alist '(("" . "~/.emacs.d/backup/per-save")))
-
-(defun force-backup-of-buffer ()
-  ;; Make a special "per session" backup at the first save of each
-  ;; emacs session.
-  (when (not buffer-backed-up)
-    ;; Override the default parameters for per-session backups.
-    (let ((backup-directory-alist '(("" . "~/.emacs.d/backup/per-session")))
-          (kept-new-versions 3))
-      (backup-buffer)))
-  ;; Make a "per save" backup on each save.  The first save results in
-  ;; both a per-session and a per-save backup, to keep the numbering
-  ;; of per-save backups consistent.
-  (let ((buffer-backed-up nil))
-    (backup-buffer)))
-
-(add-hook 'before-save-hook  'force-backup-of-buffer)
+  ;;(use-package load-dir
+  ;;  :config (setq load-dirs (concat config-load-path "~/Documents/elisp/")))
+  ;; (require 'ox-confluence)
 #+END_SRC
 
+** Revealjs
 #+BEGIN_SRC emacs-lisp
-(global-undo-tree-mode)
+;; (load-file "~/Documents/elisp/ox-reveal.el")
+;; (require 'ox-reveal)
+;; (setq org-reveal-hlevel 2)
 #+END_SRC
 
--- navigate projects
+** Review
 #+BEGIN_SRC emacs-lisp
-(projectile-mode)
+  (defun my-new-daily-review ()
+    (interactive)
+    (let ((org-capture-templates '(("d" "Review: Daily Review" entry (file+olp+datetree "/tmp/reviews.org")
+                                    (file "~/GoogleDrive/gtd/templates/dailyreview.org")))))
+      (progn
+        (org-capture nil "d")
+        (org-capture-finalize t)
+        (org-speed-move-safe 'outline-up-heading)
+        (org-narrow-to-subtree)
+        (fetch-calendar)
+        (org-clock-in))))
+
+  (defun my-new-weekly-review ()
+    (interactive)
+    (let ((org-capture-templates '(("w" "Review: Weekly Review" entry (file+olp+datetree "/tmp/reviews.org")
+                                    (file "~/GoogleDrive/gtd/templates/weeklyreview.org")))))
+      (progn
+        (org-capture nil "w")
+        (org-capture-finalize t)
+        (org-speed-move-safe 'outline-up-heading)
+        (org-narrow-to-subtree)
+        (fetch-calendar)
+        (org-clock-in))))
+
+  (defun my-new-monthly-review ()
+    (interactive)
+    (let ((org-capture-templates '(("m" "Review: Monthly Review" entry (file+olp+datetree "/tmp/reviews.org")
+                                    (file "~/GoogleDrive/gtd/templates/monthlyreview.org")))))
+      (progn
+        (org-capture nil "m")
+        (org-capture-finalize t)
+        (org-speed-move-safe 'outline-up-heading)
+        (org-narrow-to-subtree)
+        (fetch-calendar)
+        (org-clock-in))))
+
+  (bind-keys :prefix-map review-map
+             :prefix "C-c r"
+             ("d" . my-new-daily-review)
+             ("w" . my-new-weekly-review)
+             ("m" . my-new-monthly-review))
+
+  ;; (f-touch "/tmp/reviews.org")
+
 #+END_SRC
+* Mail
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path  "/usr/local/Cellar/mu/1.2.0/share/emacs/site-lisp/mu/mu4e")
+  (require 'mu4e)
+  (setq mu4e-mu-binary "/usr/local/bin/mu")
+
+  (setq mu4e-contexts
+	`( ,(make-mu4e-context
+	     :name "Gmail"
+	     :match-func (lambda (msg) (when msg
+					 (string-prefix-p "/Gmail" (mu4e-message-field msg :maildir))))
+	     :vars '(
+		     (mu4e-trash-folder . "/Gmail/[Gmail].Trash")
+		     (mu4e-refile-folder . "/Gmail/[Gmail].Archive")
+		     ))
+	   ,(make-mu4e-context
+	     :name "Exchange"
+	     :match-func (lambda (msg) (when msg
+					 (string-prefix-p "/Exchange" (mu4e-message-field msg :maildir))))
+	     :vars '(
+		     (mu4e-trash-folder . "/Exchange/Deleted Items")
+		     (mu4e-refile-folder . exchange-mu4e-refile-folder)
+		     ))
+	   ))
+
+
+  (defun exchange-mu4e-refile-folder (msg)
+    "Function for chosing the refile folder for my Exchange email.
+    MSG is a message p-list from mu4e."
+    (cond
+     ;; FLA messages
+     ((string-match "\\[some-mailing-list\\]"
+		    (mu4e-message-field msg :subject))
+      "/Exchange/mailing-list")
+     (t "/Exchange/Archive")
+     )
+    )
+
+  (use-package mu4e-alert
+    :ensure t
+    :after mu4e
+    :init
+    (setq mu4e-alert-interesting-mail-query
+	  (concat
+	   "flag:unread maildir:/Exchange/INBOX "
+	   "OR "
+	   "flag:unread maildir:/Gmail/INBOX"
+	   ))
+    (mu4e-alert-enable-mode-line-display)
+    (defun kt-refresh-mu4e-alert-mode-line ()
+      (interactive)
+      (mu4e~proc-kill)
+      (mu4e-alert-enable-mode-line-display)
+      )
+    (run-with-timer 0 60 'kt-refresh-mu4e-alert-mode-line)
+    )
+
+  ;; configuration for sending mail
+  (setq message-send-mail-function 'smtpmail-send-it
+	smtpmail-stream-type 'starttls
+	smtpmail-default-smtp-server "smtp.gmail.com"
+	smtpmail-smtp-server "smtp.gmail.com"
+	smtpmail-smtp-service 587)
+
+
+  ;;(setq mu4e-update-interval (* 15 60))
+  (setq mu4e-index-update-in-background t)
+
+  (setq
+   mu4e-get-mail-command "offlineimap"   ;; or fetchmail, or ...
+   mu4e-update-interval 300)             ;; update every 5 minutes
+
+
+#+END_SRC
+* Elfeed
+#+BEGIN_SRC emacs-lisp
+(require 'elfeed)
+(require 'elfeed-goodies)
+(elfeed-goodies/setup)
+
+(load "~/.emacs.d/elfeed-feeds.el")
+
+(global-set-key (kbd "C-x w") 'elfeed)
+(setq-default elfeed-search-filter "@1-week-ago +unread ")
+
+#+END_SRC
+
 * Shell
 #+BEGIN_SRC emacs-lisp
 ;; For case insensitive tab completion
@@ -325,82 +583,274 @@ Indent 4 spaces.
 (define-key comint-mode-map (kbd "<up>") 'comint-previous-input)
 (define-key comint-mode-map (kbd "<down>") 'comint-next-input)
 
-;;(defun my/tcsh-set-indent-functions ()
-;;  (when (or (string-match ".*\\.alias" (buffer-file-name))
-;;	    (string-match ".*csh$" (file-name-extension (buffer-file-name))))
-;;    (require 'csh-mode) ; https://github.com/Tux/tcsh/blob/master/csh-mode.el
-;;    (setq-local indent-line-function 'csh-indent-line)
-;;    (setq-local indent-region-function 'csh-indent-region)))
-;;(add-hook 'sh-set-shell-hook #'my/tcsh-set-indent-functions)
-<<<<<<< Updated upstream
-=======
-
+(defun my/tcsh-set-indent-functions ()
+(when (or (string-match ".*\\.alias" (buffer-file-name))
+    (string-match ".*csh$" (file-name-extension (buffer-file-name))))
+    (require 'csh-mode) ; https://github.com/Tux/tcsh/blob/master/csh-mode.el
+    (setq-local indent-line-function 'csh-indent-line)
+    (setq-local indent-region-function 'csh-indent-region)))
+(add-hook 'sh-set-shell-hook #'my/tcsh-set-indent-functions)
 #+END_SRC
->>>>>>> Stashed changes
-
-#+END_SRC
-
-  
-* PDF Tools
+* Misc
+** Fonts
 #+BEGIN_SRC emacs-lisp
-(use-package pdf-tools
-:ensure t)
-
-(use-package org-pdfview
-:ensure t)
-
-(require 'pdf-tools)
-(require 'org-pdfview)
-
+;; (set-face-attribute 'default nil :font "Monaco-11")
 #+END_SRC
+
+** Backup
+#+BEGIN_SRC emacs-lisp
+(setq backup-directory-alist '(("." . "~/.emacs.d/backup"))
+backup-by-copying t    ; Don't delink hardlinks
+version-control t      ; Use version numbers on backups
+delete-old-versions t  ; Automatically delete excess backups
+kept-new-versions 20   ; how many of the newest versions to keep
+kept-old-versions 5    ; and how many of the old
+)
+#+END_SRC
+** Multiple Cursors
 
 #+BEGIN_SRC emacs-lisp
-;; Install epdfinfo via 'brew install pdf-tools' and then install the
-;; pdf-tools elisp via the use-package below. To upgrade the epdfinfo
-;; server, just do 'brew upgrade pdf-tools' prior to upgrading to newest
-;; pdf-tools package using Emacs package system. If things get messed
-;; up, just do 'brew uninstall pdf-tools', wipe out the elpa
-;; pdf-tools package and reinstall both as at the start.
-
-(use-package pdf-tools
- :ensure t
- :config
- (custom-set-variables
-   '(pdf-tools-handle-upgrades nil)) ; Use brew upgrade pdf-tools instead.
- (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo"))
-(pdf-tools-install)
-#+END_SRC
-  
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-* Magit
-#+BEGIN_SRC emacs-lisp
-  ;;shortcut
-  (global-set-key (kbd "C-x g") 'magit-status)
-
-  ;; enable spell checking
-  (add-hook 'git-commit-mode-hook 'turn-on-flyspell)
-
+(require 'multiple-cursors)
+(global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+(global-set-key (kbd "C->") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this)
 #+END_SRC
 
-* Ditaa
+** Powerline
 #+BEGIN_SRC emacs-lisp
-(setq org-ditaa-jar-path "~/.emacs.d/elpa/contrib/scripts/ditaa.jar")
-=======
-=======
->>>>>>> Stashed changes
-
-* Funcs
-#+BEGIN_SRC emacs-lisp
-;; fill upto end of line with char
-(defun fill-to-end (char)
-  (interactive "cFill Character:")
-  (save-excursion
-    (end-of-line)
-    (while (< (current-column) 79)
-      (insert-char char))))
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+(require 'powerline)
+(powerline-default-theme)
 #+END_SRC
+
+** Security
+#+BEGIN_SRC emacs-lisp
+;; Check TLS
+;;  (setq tls-checktrust t)
+;;  (setq gnutls-verify-error t)
+#+END_SRC
+
+** Magit
+#+BEGIN_SRC emacs-lisp
+;;shortcut
+ (global-set-key (kbd "C-x g") 'magit-status)
+
+;; enable spell checking
+(add-hook 'git-commit-mode-hook 'turn-on-flyspell)
+#+END_SRC
+
+** PDF tools
+#+BEGIN_SRC emacs-lisp
+  (use-package pdf-tools
+    :ensure t)
+
+  (use-package org-pdfview
+  :ensure t)
+
+  (require 'pdf-tools)
+  (require 'org-pdfview)
+
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  ;; Install epdfinfo via 'brew install pdf-tools' and then install the
+  ;; pdf-tools elisp via the use-package below. To upgrade the epdfinfo
+  ;; server, just do 'brew upgrade pdf-tools' prior to upgrading to newest
+  ;; pdf-tools package using Emacs package system. If things get messed
+  ;; up, just do 'brew uninstall pdf-tools', wipe out the elpa
+  ;; pdf-tools package and reinstall both as at the start.
+
+  ;; (use-package pdf-tools
+  ;;  :ensure t
+  ;;  :config
+  ;;  (custom-set-variables
+  ;;    '(pdf-tools-handle-upgrades nil)) ; Use brew upgrade pdf-tools instead.
+  ;;  (setq pdf-info-epdfinfo-program "/usr/local/bin/epdfinfo"))
+  ;; (pdf-tools-install)
+#+END_SRC
+
+** KeyFreq
+#+BEGIN_SRC emacs-lisp
+(require 'keyfreq)
+(keyfreq-mode 1)
+(keyfreq-autosave-mode 1)
+#+END_SRC
+
+** Themes
+#+BEGIN_SRC emacs-lisp
+;; (load-theme 'solarized-dark t)
+;; (load-theme 'solarized-light t)
+#+END_SRC
+
+** Confluence
+#+BEGIN_SRC emacs-lisp
+;; to export org files to confluence
+;;(load "~/Documents/elisp/ox-confluence.el")
+;;(require 'ox-confluence)
+#+END_SRC
+** Random
+
+#+BEGIN_SRC emacs-lisp
+  (setenv "BROWSER" "firefox")
+
+
+  (global-undo-tree-mode)
+  (which-key-mode)
+  (which-key-setup-side-window-right-bottom)
+
+  (add-to-list 'default-frame-alist '(height . 45))
+  (add-to-list 'default-frame-alist '(width . 90))
+
+#+END_SRC
+* Navigate
+#+BEGIN_SRC emacs-lisp
+  (dumb-jump-mode)
+  (setq dumb-jump-selector 'ivy)
+
+  (ido-mode t)
+  (ido-everywhere t)
+  (setq ido-enable-flex-matching t)
+
+  (global-set-key "\C-s" 'swiper)
+
+  (setq ivy-wrap t)
+  (ivy-mode 1)
+
+
+#+END_SRC
+
+
+#+BEGIN_SRC emacs-lisp
+(require 'ivy)
+(setq ivy-use-virtual-buffers t)
+(setq ivy-count-format "(%d/%d) ")
+#+END_SRC
+
+
+
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-x b") 'counsel-ibuffer)
+  ;; Run `counsel-ag` against the current directory and not against the
+  ;; whole project
+  (global-set-key (kbd "C-c k") '(lambda()
+				   (interactive)
+				   (counsel-ag "" default-directory nil nil)))
+  (global-set-key (kbd "C-x l") 'counsel-locate)
+  (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+  ;; (global-set-key (kbd "C-s") 'isearch-forward-regexp)
+  ;; (global-set-key (kbd "C-r") 'isearch-backward-regexp)
+#+END_SRC
+
+
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'pdf-view-mode-hook '(lambda()
+				   (define-key pdf-view-mode-map "\C-s" 'isearch-forward)))
+#+END_SRC
+
+* Functions
+** fill_to_end 
+#+BEGIN_SRC emacs-lisp
+  ;; fill upto end of line with char
+  (defun fill-to-end (char)
+    (interactive "cFill Character:")
+    (save-excursion
+      (end-of-line)
+      (while (< (current-column) 79)
+	(insert-char char))))
+
+  (global-set-key (kbd "C-c f") 'fill-to-end)
+  ;; (call-interactively (key-binding (kbd "C-c f")))
+#+END_SRC
+
+** Package installs
+#+BEGIN_SRC emacs-lisp
+;; https://stackoverflow.com/questions/10092322/how-to-automatically-install-emacs-packages-by-specifying-a-list-of-package-name
+(defun ensure-package-installed (&rest packages)
+  "Assure every package is installed, ask for installation if it’s not.
+
+Return a list of installed packages or nil for every skipped package."
+  (mapcar
+   (lambda (package)
+     ;; (package-installed-p 'evil)
+     (if (package-installed-p package)
+         nil
+       (if (y-or-n-p (format "Package %s is missing. Install it? " package))
+           (package-install package)
+         package)))
+   packages))
+
+;; make sure to have downloaded archive description.
+;; Or use package-archive-contents as suggested by Nicolas Dudebout
+(or (file-exists-p package-user-dir)
+    (package-refresh-contents))
+
+(ensure-package-installed 'magit) ;  --> (nil) if iedit and magit are already installed
+
+;; activate installed packages
+;; (package-initialize)
+;; (evil-mode 1)
+#+END_SRC
+
+** Kill other buffers
+#+BEGIN_SRC emacs-lisp
+  (defun kill-other-buffers ()
+    "Kill all other buffers."
+    (interactive)
+    (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+
+  (defun kill-dired-buffers ()
+    "Kill all open dired buffers."
+    (interactive)
+    (mapc (lambda (buffer)
+	    (when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
+	      (kill-buffer buffer)))
+	  (buffer-list)))
+#+END_SRC
+** Datetimes
+#+BEGIN_SRC emacs-lisp
+(defun date (arg)
+    (interactive "P")
+    (insert (if arg
+                (format-time-string "%d.%m.%Y")
+            (format-time-string "%Y-%m-%d"))))
+
+(defun timestamp ()
+    (interactive)
+    (insert (format-time-string "%Y-%m-%dT%H:%M:%S")))
+
+(defun now ()
+    "Insert string for the current time formatted like '2:34 PM'."
+    (interactive)                 ; permit invocation in minibuffer
+    (insert (format-time-string "%D %-I:%M %p")))
+
+(defun today ()
+    "Insert string for today's date nicely formatted in American style,
+e.g. Sunday, September 17, 2000."
+    (interactive)                 ; permit invocation in minibuffer
+    (insert (format-time-string "%A, %B %e, %Y")))
+
+(defun jump-to-point-and-show ()
+"Switch to a cloned buffer's base buffer and move point to the
+cursor position in the clone."
+(interactive)
+(let ((buf (buffer-base-buffer)))
+    (unless buf
+    (error "You need to be in a cloned buffer!"))
+    (let ((pos (point))
+        (win (car (get-buffer-window-list buf))))
+    (if win
+        (select-window win)
+        (other-window 1)
+        (switch-to-buffer buf))
+    (goto-char pos)
+    (when (invisible-p (point))
+        (show-branches)))))
+#+END_SRC
+
